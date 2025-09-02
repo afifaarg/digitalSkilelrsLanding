@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DigitalSkillers - Connect with Digital Professionals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a8a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+      }
+
+      .hero-gradient {
+        background: linear-gradient(
+          135deg,
+          #1e3a8a 0%,
+          #3b82f6 50%,
+          #60a5fa 100%
+        );
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-gradient::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 20% 80%,
+            rgba(96, 165, 250, 0.3) 0%,
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(59, 130, 246, 0.3) 0%,
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 40% 40%,
+            rgba(30, 58, 138, 0.3) 0%,
+            transparent 25%
+          );
+        z-index: 1;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+      }
+
+      .feature-card {
+        transition: all 0.3s ease;
+      }
+
+      .step-number {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        color: white;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+      }
+
+      .cta-button {
+        transition: all 0.3s ease;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+      }
+
+      .language-selector {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .language-selector:hover {
+        transform: scale(1.05);
+      }
+
+      .language-selector.active {
+        background-color: #3b82f6;
+        color: white;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body x-data="i18n()" class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full z-10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <span class="text-primary-600 font-bold text-2xl"
+              >DigitalSkillers</span
+            >
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a
+              href="#why"
+              class="text-gray-600 hover:text-primary-600 transition-colors"
+              x-text="translations[currentLanguage].nav.why"></a>
+            <a
+              href="#features"
+              class="text-gray-600 hover:text-primary-600 transition-colors"
+              x-text="translations[currentLanguage].nav.features"></a>
+            <a
+              href="#how-it-works"
+              class="text-gray-600 hover:text-primary-600 transition-colors"
+              x-text="translations[currentLanguage].nav.howItWorks"></a>
+            <a
+              href="#about"
+              class="text-gray-600 hover:text-primary-600 transition-colors"
+              x-text="translations[currentLanguage].nav.about"></a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <div
+              x-data="{
+            open: false,
+            toggle() {
+                if (this.open) {
+                    return this.close()
+                }
+ 
+                this.$refs.button.focus()
+ 
+                this.open = true
+            },
+            close(focusAfter) {
+                if (! this.open) return
+ 
+                this.open = false
+ 
+                focusAfter && focusAfter.focus()
+            }
+        }"
+              x-on:keydown.escape.prevent.stop="close($refs.button)"
+              x-on:focusin.window="! $refs.panel.contains($event.target) && close()"
+              x-id="['dropdown-button']">
+              <!-- Button -->
+              <button
+                x-ref="button"
+                x-on:click="toggle()"
+                :aria-expanded="open"
+                :aria-controls="$id('dropdown-button')"
+                type="button"
+                class="flex items-center whitespace-nowrap justify-center gap-2 py-2 rounded-lg shadow-sm bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 hover:border-gray-200 px-2">
+                <span x-text="currentLanguage === 'fr' ? 'FR' : 'EN'"></span>
+
+                <!-- Heroicon: micro chevron-down -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  class="size-4">
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <!-- Panel -->
+              <div
+                x-ref="panel"
+                x-show="open"
+                x-transition.origin.top.left
+                x-on:click.outside="close($refs.button)"
+                x-cloak
+                class="min-w-48 rounded-lg shadow-sm mt-4 absolute z-10 origin-top-left bg-white p-1.5 outline-none border border-gray-200">
+                <div
+                  class="language-selector px-3 py-1 rounded-md"
+                  :class="{ 'active': currentLanguage === 'en' }"
+                  @click="currentLanguage = 'en'">
+                  EN
+                </div>
+                <div
+                  class="language-selector px-3 py-1 rounded-md"
+                  :class="{ 'active': currentLanguage === 'fr' }"
+                  @click="currentLanguage = 'fr'">
+                  FR
+                </div>
+              </div>
+            </div>
+            <button
+              class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+              x-text="translations[currentLanguage].nav.getStarted"></button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-24 pb-16 md:pt-32 md:pb-24">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hero-content">
+        <div class="md:text-center fade-in" x-show="currentLanguage">
+          <h1
+            class="text-4xl md:text-5xl font-extrabold text-white tracking-tight"
+            x-text="translations[currentLanguage].hero.headline"></h1>
+          <p
+            class="mt-4 text-xl text-blue-100 max-w-3xl mx-auto"
+            x-text="translations[currentLanguage].hero.subtitle"></p>
+          <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSe4h0ickgMPr2HqnDCRD0g7LGQFjEmFG8ejF3yVx8IN-x6qkw/viewform?usp=header"
+              class="cta-button bg-white text-primary-600 px-6 py-3 rounded-md font-semibold text-lg shadow-lg hover:bg-gray-50 transition"
+              x-text="translations[currentLanguage].hero.ctaProfile"></a>
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeqJ1vxwi2K1fDJFnaOf4gR0Q32qZQzhrnGjKXxcvvJa-AxpQ/viewform?usp=header"
+              class="cta-button bg-primary-800 text-white px-6 py-3 rounded-md font-semibold text-lg shadow-lg hover:bg-primary-900 transition"
+              x-text="translations[currentLanguage].hero.ctaHire"></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why DigitalSkillers -->
+    <section id="why" class="py-16 bg-white">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in"
+        x-show="currentLanguage">
+        <h2
+          class="text-3xl font-bold text-center text-gray-900 mb-12"
+          x-text="translations[currentLanguage].why.title"></h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div
+            class="text-center p-6 rounded-lg bg-primary-50 border border-primary-100 feature-card">
+            <div
+              class="mx-auto bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+              <i class="fas fa-check-circle text-primary-600 text-2xl"></i>
+            </div>
+            <h3
+              class="text-xl font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].why.verified.title"></h3>
+            <p
+              class="text-gray-600"
+              x-text="translations[currentLanguage].why.verified.description"></p>
+          </div>
+          <div
+            class="text-center p-6 rounded-lg bg-primary-50 border border-primary-100 feature-card">
+            <div
+              class="mx-auto bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+              <i class="fas fa-lock text-primary-600 text-2xl"></i>
+            </div>
+            <h3
+              class="text-xl font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].why.secure.title"></h3>
+            <p
+              class="text-gray-600"
+              x-text="translations[currentLanguage].why.secure.description"></p>
+          </div>
+          <div
+            class="text-center p-6 rounded-lg bg-primary-50 border border-primary-100 feature-card">
+            <div
+              class="mx-auto bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+              <i class="fas fa-hands-helping text-primary-600 text-2xl"></i>
+            </div>
+            <h3
+              class="text-xl font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].why.support.title"></h3>
+            <p
+              class="text-gray-600"
+              x-text="translations[currentLanguage].why.support.description"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Features -->
+    <section id="features" class="py-16 bg-gray-50">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in"
+        x-show="currentLanguage">
+        <h2
+          class="text-3xl font-bold text-center text-gray-900 mb-12"
+          x-text="translations[currentLanguage].features.title"></h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-brain text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.aiMatching.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.aiMatching.description"></p>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-file-invoice-dollar text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.invoicing.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.invoicing.description"></p>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-file-signature text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.contracts.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.contracts.description"></p>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-shield-alt text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.dispute.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.dispute.description"></p>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-database text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.privacy.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.privacy.description"></p>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-bell text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.notifications.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.notifications.description"></p>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-handshake text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.partnerships.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.partnerships.description"></p>
+          </div>
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 feature-card">
+            <div
+              class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+              <i class="fas fa-rocket text-primary-600"></i>
+            </div>
+            <h3
+              class="text-lg font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].features.onboarding.title"></h3>
+            <p
+              class="text-gray-600 text-sm"
+              x-text="translations[currentLanguage].features.onboarding.description"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-16 bg-white">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in"
+        x-show="currentLanguage">
+        <h2
+          class="text-3xl font-bold text-center text-gray-900 mb-12"
+          x-text="translations[currentLanguage].howItWorks.title"></h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="step-number">1</div>
+            <h3
+              class="text-xl font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].howItWorks.step1.title"></h3>
+            <p
+              class="text-gray-600"
+              x-text="translations[currentLanguage].howItWorks.step1.description"></p>
+          </div>
+          <div class="text-center">
+            <div class="step-number">2</div>
+            <h3
+              class="text-xl font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].howItWorks.step2.title"></h3>
+            <p
+              class="text-gray-600"
+              x-text="translations[currentLanguage].howItWorks.step2.description"></p>
+          </div>
+          <div class="text-center">
+            <div class="step-number">3</div>
+            <h3
+              class="text-xl font-semibold text-gray-900 mb-2"
+              x-text="translations[currentLanguage].howItWorks.step3.title"></h3>
+            <p
+              class="text-gray-600"
+              x-text="translations[currentLanguage].howItWorks.step3.description"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About / Vision -->
+    <section
+      id="about"
+      class="py-16 bg-gradient-to-r from-primary-700 to-primary-900 text-white">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in"
+        x-show="currentLanguage">
+        <div class="md:text-center">
+          <h2
+            class="text-3xl font-bold mb-6"
+            x-text="translations[currentLanguage].about.title"></h2>
+          <p
+            class="text-xl max-w-3xl mx-auto mb-6"
+            x-text="translations[currentLanguage].about.description1"></p>
+          <p
+            class="text-xl max-w-3xl mx-auto"
+            x-text="translations[currentLanguage].about.description2"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in"
+        x-show="currentLanguage">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">DigitalSkillers</h3>
+            <p
+              class="text-gray-400"
+              x-text="translations[currentLanguage].footer.tagline"></p>
+          </div>
+          <div>
+            <h4
+              class="text-lg font-semibold mb-4"
+              x-text="translations[currentLanguage].footer.contact"></h4>
+            <p class="text-gray-400">
+              Email:
+              <a
+                href="mailto:contact@thedigitalskillers.com"
+                class="text-primary-300 hover:text-primary-400 transition-colors"
+                >contact@thedigitalskillers.com</a
+              >
+            </p>
+          </div>
+          <div>
+            <h4
+              class="text-lg font-semibold mb-4"
+              x-text="translations[currentLanguage].footer.legal"></h4>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  x-text="translations[currentLanguage].footer.legalNotice"></a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  x-text="translations[currentLanguage].footer.privacyPolicy"></a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  x-text="translations[currentLanguage].footer.terms"></a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4
+              class="text-lg font-semibold mb-4"
+              x-text="translations[currentLanguage].footer.follow"></h4>
+            <div class="flex space-x-4">
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors">
+                <i class="fab fa-linkedin-in text-xl"></i>
+              </a>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors">
+                <i class="fab fa-twitter text-xl"></i>
+              </a>
+              <a
+                href="#"
+                class="text-gray-400 hover:text-white transition-colors">
+                <i class="fab fa-facebook-f text-xl"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div
+          class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+          <p x-text="translations[currentLanguage].footer.copyright"></p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("i18n", () => ({
+          currentLanguage: "en",
+          translations: {
+            en: {
+              nav: {
+                why: "Why Choose Us",
+                features: "Features",
+                howItWorks: "How It Works",
+                about: "About",
+                getStarted: "Get Started",
+              },
+              hero: {
+                headline:
+                  "Connect the right digital professionals with the right companies.",
+                subtitle:
+                  "DigitalSkillers is a professional platform that connects companies with qualified digital experts, offering tools designed for efficient, secure, and seamless collaboration.",
+                ctaProfile: "Create my profile",
+                ctaHire: "I want to hire",
+              },
+              why: {
+                title: "Why DigitalSkillers?",
+                verified: {
+                  title: "Verified profiles with proven skills",
+                  description:
+                    "Every professional on our platform is thoroughly vetted to ensure quality and expertise.",
+                },
+                secure: {
+                  title: "Secure management of payments and contracts",
+                  description:
+                    "We handle all financial transactions and legal documentation with bank-level security.",
+                },
+                support: {
+                  title: "Dedicated support throughout the project",
+                  description:
+                    "Our team provides ongoing assistance to ensure successful collaboration from start to finish.",
+                },
+              },
+              features: {
+                title: "Key Features",
+                aiMatching: {
+                  title: "AI-powered matching",
+                  description:
+                    "Find the right talent automatically based on your specific requirements.",
+                },
+                invoicing: {
+                  title: "Automated invoicing",
+                  description:
+                    "Get paid on time with transparent billing and payment processes.",
+                },
+                contracts: {
+                  title: "Online contracts",
+                  description:
+                    "Sign legally binding agreements in just a few clicks from anywhere.",
+                },
+                dispute: {
+                  title: "Dispute management",
+                  description:
+                    "Guided and secure collaboration with mediation support when needed.",
+                },
+                privacy: {
+                  title: "Data privacy",
+                  description:
+                    "Your information stays protected with enterprise-grade security measures.",
+                },
+                notifications: {
+                  title: "Smart notifications",
+                  description:
+                    "Never miss an opportunity or important update with our alert system.",
+                },
+                partnerships: {
+                  title: "Verified partnerships",
+                  description:
+                    "Grow your professional network with trusted, validated connections.",
+                },
+                onboarding: {
+                  title: "Fast onboarding",
+                  description:
+                    "Get started quickly with our streamlined registration process.",
+                },
+              },
+              howItWorks: {
+                title: "How It Works",
+                step1: {
+                  title: "Create a professional profile or post a mission",
+                  description:
+                    "Sign up as a professional or business and complete your profile with skills or project requirements.",
+                },
+                step2: {
+                  title: "Use our tools to match, sign, and collaborate",
+                  description:
+                    "Our AI will suggest perfect matches, and our platform handles contracts and collaboration.",
+                },
+                step3: {
+                  title: "Save time, gain control, and achieve results",
+                  description:
+                    "Focus on what matters while we handle admin tasks, payments, and project management.",
+                },
+              },
+              about: {
+                title: "Our Vision",
+                description1:
+                  "DigitalSkillers is a SaaS platform built to simplify collaboration between companies and digital professionals.",
+                description2:
+                  "Our mission: make recruitment and project management smoother, fairer, and more secure through technology.",
+              },
+              footer: {
+                tagline:
+                  "Connecting companies with top digital talent through innovative technology.",
+                contact: "Contact",
+                legal: "Legal",
+                legalNotice: "Legal Notice (Coming Soon)",
+                privacyPolicy: "Privacy Policy",
+                terms: "Terms of Service",
+                follow: "Follow Us",
+                copyright:
+                  "DigitalSkillers is a tech company currently in launch phase. © 2025",
+              },
+            },
+            fr: {
+              nav: {
+                why: "Pourquoi nous choisir",
+                features: "Fonctionnalités",
+                howItWorks: "Comment ça marche",
+                about: "À propos",
+                getStarted: "Commencer",
+              },
+              hero: {
+                headline:
+                  "Connectez les bons professionnels du numérique avec les bonnes entreprises.",
+                subtitle:
+                  "DigitalSkillers est une plateforme professionnelle qui connecte les entreprises avec des experts digitaux qualifiés, offrant des outils conçus pour une collaboration efficace, sécurisée et transparente.",
+                ctaProfile: "Créer mon profil",
+                ctaHire: "Je veux recruter",
+              },
+              why: {
+                title: "Pourquoi DigitalSkillers?",
+                verified: {
+                  title: "Profils vérifiés avec des compétences prouvées",
+                  description:
+                    "Chaque professionnel sur notre plateforme est soigneusement examiné pour garantir qualité et expertise.",
+                },
+                secure: {
+                  title: "Gestion sécurisée des paiements et contrats",
+                  description:
+                    "Nous gérons toutes les transactions financières et la documentation juridique avec une sécurité de niveau bancaire.",
+                },
+                support: {
+                  title: "Support dédié tout au long du projet",
+                  description:
+                    "Notre équipe fournit une assistance continue pour garantir une collaboration réussie du début à la fin.",
+                },
+              },
+              features: {
+                title: "Fonctionnalités Clés",
+                aiMatching: {
+                  title: "Appariement par IA",
+                  description:
+                    "Trouvez automatiquement le bon talent en fonction de vos besoins spécifiques.",
+                },
+                invoicing: {
+                  title: "Facturation automatisée",
+                  description:
+                    "Soyez payé à temps avec des processus de facturation et de paiement transparents.",
+                },
+                contracts: {
+                  title: "Contrats en ligne",
+                  description:
+                    "Signez des accords juridiquement contraignants en quelques clics, où que vous soyez.",
+                },
+                dispute: {
+                  title: "Gestion des litiges",
+                  description:
+                    "Collaboration guidée et sécurisée avec support de médiation si nécessaire.",
+                },
+                privacy: {
+                  title: "Confidentialité des données",
+                  description:
+                    "Vos informations restent protégées avec des mesures de sécurité de niveau entreprise.",
+                },
+                notifications: {
+                  title: "Notifications intelligentes",
+                  description:
+                    "Ne manquez jamais une opportunité ou une mise à jour importante avec notre système d'alertes.",
+                },
+                partnerships: {
+                  title: "Partenariats vérifiés",
+                  description:
+                    "Développez votre réseau professionnel avec des connexions de confiance et validées.",
+                },
+                onboarding: {
+                  title: "Intégration rapide",
+                  description:
+                    "Commencez rapidement avec notre processus d'inscription rationalisé.",
+                },
+              },
+              howItWorks: {
+                title: "Comment ça marche",
+                step1: {
+                  title: "Créez un profil professionnel ou postez une mission",
+                  description:
+                    "Inscrivez-vous en tant que professionnel ou entreprise et complétez votre profil avec vos compétences ou exigences de projet.",
+                },
+                step2: {
+                  title:
+                    "Utilisez nos outils pour matcher, signer et collaborer",
+                  description:
+                    "Notre IA suggérera des correspondances parfaites, et notre plateforme gère les contrats et la collaboration.",
+                },
+                step3: {
+                  title:
+                    "Gagnez du temps, prenez le contrôle et obtenez des résultats",
+                  description:
+                    "Concentrez-vous sur l'essentiel pendant que nous gérons les tâches administratives, les paiements et la gestion de projet.",
+                },
+              },
+              about: {
+                title: "Notre Vision",
+                description1:
+                  "DigitalSkillers est une plateforme SaaS conçue pour simplifier la collaboration entre les entreprises et les professionnels du numérique.",
+                description2:
+                  "Notre mission : rendre le recrutement et la gestion de projet plus fluides, plus équitables et plus sécurisés grâce à la technologie.",
+              },
+              footer: {
+                tagline:
+                  "Connecter les entreprises avec les meilleurs talents digitaux grâce à une technologie innovante.",
+                contact: "Contact",
+                legal: "Légal",
+                legalNotice: "Mentions légales (Bientôt disponible)",
+                privacyPolicy: "Politique de confidentialité",
+                terms: "Conditions d'utilisation",
+                follow: "Suivez-nous",
+                copyright:
+                  "DigitalSkillers est une entreprise technologique actuellement en phase de lancement. © 2025",
+              },
+            },
+          },
+          init() {
+            // Set initial language based on browser preference
+            const browserLang = navigator.language.substring(0, 2);
+            this.currentLanguage = browserLang === "fr" ? "fr" : "en";
+          },
+        }));
+      });
+    </script>
+  </body>
+</html>
