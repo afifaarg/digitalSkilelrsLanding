@@ -263,9 +263,12 @@
               class="cta-button bg-white text-primary-600 px-6 py-3 rounded-md font-semibold text-lg shadow-lg hover:bg-gray-50 transition"
               x-text="translations[currentLanguage].hero.ctaProfile"></a>
             <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSeqJ1vxwi2K1fDJFnaOf4gR0Q32qZQzhrnGjKXxcvvJa-AxpQ/viewform?usp=header"
+              :href="currentLanguage === 'en' 
+    ? 'https://docs.google.com/forms/d/e/1FAIpQLSeqJ1vxwi2K1fDJFnaOf4gR0Q32qZQzhrnGjKXxcvvJa-AxpQ/viewform?usp=header' 
+    : 'http://docs.google.com/forms/d/e/1FAIpQLScTjmxkvBLNxk9AOLfUBE7CPtDRYPp_6m4k_cCMhepU26b3EQ/viewform'"
               class="cta-button bg-primary-800 text-white px-6 py-3 rounded-md font-semibold text-lg shadow-lg hover:bg-primary-900 transition"
-              x-text="translations[currentLanguage].hero.ctaHire"></a>
+              x-text="translations[currentLanguage].hero.ctaHire">
+            </a>
           </div>
         </div>
       </div>
