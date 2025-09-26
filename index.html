@@ -48,12 +48,100 @@
         },
       };
     </script>
+    <style>
+      /* Add your custom styles here */
+      .mobile-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #1a202c; /* darkblue equivalent */
+        z-index: 50;
+        padding: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-menu .active {
+        display: block;
+      }
+
+      .mobile-menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .mobile-menu li {
+        margin-bottom: 1rem;
+      }
+
+      .mobile-menu a {
+        display: block;
+        padding: 0.5rem 0;
+      }
+
+      /* Hide desktop nav on mobile */
+      @media (max-width: 1023px) {
+        .desktop-nav {
+          display: none;
+        }
+      }
+
+      /* Show desktop nav on larger screens */
+      @media (min-width: 1024px) {
+        .mobile-menu-button {
+          display: none;
+        }
+
+        .mobile-menu {
+          display: none !important;
+        }
+      }
+
+      /* Language dropdown positioning */
+      .language-dropdown {
+        position: relative;
+      }
+
+      .language-panel {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 0.5rem;
+      }
+    </style>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body x-data="i18n()" class="bg-gray-50 font-poppins">
     <div class="main-section">
       <header class="flex justify-between items-center px-4 lg:px-16 py-5">
-        <button class="mobile-menu-button" id="mobileMenuButton">☰</button>
+        <button class="mobile-menu-button lg:hidden" id="mobileMenuButton">
+          ☰
+        </button>
+        <script>
+          // Mobile menu functionality
+          document.addEventListener("DOMContentLoaded", function () {
+            const mobileMenuButton =
+              document.getElementById("mobileMenuButton");
+            const mobileMenu = document.getElementById("mobileMenu");
+
+            mobileMenuButton.addEventListener("click", function (e) {
+              e.stopPropagation();
+              mobileMenu.classList.toggle("active");
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener("click", function (event) {
+              if (
+                !mobileMenu.contains(event.target) &&
+                !mobileMenuButton.contains(event.target)
+              ) {
+                mobileMenu.classList.remove("active");
+              }
+            });
+          });
+        </script>
         <nav class="desktop-nav">
           <ul class="flex space-x-4 lg:space-x-8 list-none m-0 p-0">
             <li>
