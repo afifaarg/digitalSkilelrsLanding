@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CV Maker — HTML + Tailwind + Alpine.js</title>
+    <!-- Tailwind Play CDN (quick) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <!-- html2pdf for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <style>
+      /* Print-friendly sizing */
+      @media print {
+        html,
+        body {
+          background: white;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .cv-page {
+          box-shadow: none;
+          margin: 0;
+        }
+        .cv-page * {
+          color: #111 !important;
+        }
+      }
+      /* small helpers for preview */
+      .photo-placeholder {
+        background: linear-gradient(135deg, #e2e8f0, #c7d2fe);
+      }
+
+      /* Custom scrollbar for form */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
+
+      /* Section styling */
+      .form-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Input styling */
+      .styled-input {
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.2s;
+        width: 100%;
+      }
+      .styled-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      /* Button styling */
+      .btn-primary {
+        background: #3b82f6;
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #4b5563;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .btn-secondary:hover {
+        background: #e5e7eb;
+      }
+
+      /* CV Preview styling */
+      .cv-section {
+        margin-bottom: 1.5rem;
+      }
+      .cv-section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        border-bottom: 2px solid #3b82f6;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Skill tags */
+      .skill-tag {
+        display: inline-flex;
+        align-items: center;
+        background: #eff6ff;
+        color: #1e40af;
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        margin: 0.25rem;
+      }
+
+      /* Experience and Education cards */
+      .experience-card,
+      .education-card {
+        border-left: 3px solid #3b82f6;
+        padding-left: 1rem;
+        margin-bottom: 1.25rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 min-h-screen">
+    <div class="max-w-7xl mx-auto" x-data="cvApp()">
+      <header class="flex flex-col mb-8 p-4 bg-white rounded-xl shadow-sm">
+        <a
+          href="./index.html"
+          class="text-[#161349] flex gap-2 items-center font-medium hover:underline"
+        >
+          <svg
+            class="arrow"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M10 13L5 8L10 3"
+              stroke="#161349"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span> Go Back to DigitalSKillers </span>
+        </a>
+        <div class="flex items-center justify-between space-x-6">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+              SKILL ID - Your Professional CV Maker
+            </h1>
+            <p class="text-gray-600 mt-1">
+              Create an ATS-friendly, beautifully designed resume with SKILL ID
+              <span class="text-sm text-blue-500 font-medium">
+                <a href="https://thedigitalskillers.com"
+                  >By DigitalSKillers</a
+                ></span
+              >
+            </p>
+          </div>
+
+          <div class="space-x-2 no-print flex items-center">
+            <button @click="reset()" class="btn-secondary flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Reset
+            </button>
+            <button
+              @click="downloadPDF()"
+              class="btn-primary flex items-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Download PDF
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Form -->
+        <section
+          class="col-span-2 form-section no-print overflow-auto h-full custom-scrollbar"
+        >
+          <h2
+            class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200"
+          >
+            Personal Information
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Full name</label
+              >
+              <input
+                x-model="data.name"
+                class="styled-input"
+                placeholder="Jane Doe"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Job title / Headline</label
+              >
+              <input
+                x-model="data.title"
+                class="styled-input"
+                placeholder="Frontend Developer"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Email</label
+                >
+                <input
+                  x-model="data.email"
+                  class="styled-input"
+                  placeholder="you@domain.com"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Phone</label
+                >
+                <input
+                  x-model="data.phone"
+                  class="styled-input"
+                  placeholder="+213 5x xx xx xx"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Location (city, country)</label
+              >
+              <input
+                x-model="data.location"
+                class="styled-input"
+                placeholder="Algiers, Algeria"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >LinkedIn / Portfolio</label
+              >
+              <input
+                x-model="data.website"
+                class="styled-input"
+                placeholder="https://..."
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Professional summary (2-4 lines)</label
+              >
+              <textarea
+                x-model="data.summary"
+                rows="4"
+                class="styled-input"
+                placeholder="Short summary for ATS and recruiters."
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Photo</label
+              >
+              <div class="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  @change="onPhoto($event)"
+                  class="text-sm"
+                />
+                <button
+                  type="button"
+                  @click="data.photo=null"
+                  class="px-3 py-1.5 bg-gray-200 rounded text-sm hover:bg-gray-300 transition"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <h2
+            class="text-xl font-semibold text-gray-800 mt-8 mb-4 pb-2 border-b border-gray-200"
+          >
+            Work Experience
+          </h2>
+          <template x-for="(exp, i) in data.experience" :key="i">
+            <div class="border border-gray-200 rounded-lg p-4 mb-3 bg-gray-50">
+              <div class="flex justify-between items-start mb-3">
+                <div class="flex-1 space-y-2">
+                  <input
+                    x-model="exp.role"
+                    class="styled-input text-sm"
+                    placeholder="Role/title"
+                  />
+                  <input
+                    x-model="exp.company"
+                    class="styled-input text-sm"
+                    placeholder="Company"
+                  />
+                  <input
+                    x-model="exp.period"
+                    class="styled-input text-sm"
+                    placeholder="2019 - 2021"
+                  />
+                </div>
+                <div class="ml-2 space-y-1 flex flex-col">
+                  <button
+                    class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 transition"
+                    @click="addExperience(i+1)"
+                    title="Add new experience"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    class="px-2 py-1 bg-yellow-400 rounded text-xs hover:bg-yellow-500 transition"
+                    @click="duplicateExperience(i)"
+                    title="Duplicate"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition"
+                    @click="removeExperience(i)"
+                    title="Remove"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <textarea
+                x-model="exp.description"
+                rows="3"
+                class="styled-input text-sm"
+                placeholder="Describe your accomplishments, use bullet-style sentences."
+              ></textarea>
+            </div>
+          </template>
+
+          <!-- Education -->
+          <h2
+            class="text-xl font-semibold text-gray-800 mt-8 mb-4 pb-2 border-b border-gray-200"
+          >
+            Education
+          </h2>
+          <template x-for="(ed, i) in data.education" :key="i">
+            <div class="border border-gray-200 rounded-lg p-4 mb-3 bg-gray-50">
+              <div class="space-y-2">
+                <input
+                  x-model="ed.degree"
+                  class="styled-input text-sm"
+                  placeholder="BSc in Computer Science"
+                />
+                <input
+                  x-model="ed.institution"
+                  class="styled-input text-sm"
+                  placeholder="University Name"
+                />
+                <div class="flex justify-between items-center">
+                  <input
+                    x-model="ed.period"
+                    class="styled-input text-sm w-2/3"
+                    placeholder="2016 - 2019"
+                  />
+                  <div class="space-x-1">
+                    <button
+                      class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 transition"
+                      @click="addEducation(i+1)"
+                      title="Add new education"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition"
+                      @click="removeEducation(i)"
+                      title="Remove"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Skills & Languages -->
+          <h2
+            class="text-xl font-semibold text-gray-800 mt-8 mb-4 pb-2 border-b border-gray-200"
+          >
+            Skills & Languages
+          </h2>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Add skill</label
+            >
+            <div class="flex gap-2">
+              <input
+                x-model="skillInput"
+                @keydown.enter.prevent="addSkill()"
+                placeholder="JavaScript"
+                class="styled-input"
+              />
+              <button @click="addSkill()" class="btn-primary whitespace-nowrap">
+                Add Skill
+              </button>
+            </div>
+            <div class="flex gap-2 mt-3 flex-wrap">
+              <template x-for="(s, idx) in data.skills" :key="idx">
+                <span class="skill-tag">
+                  <span x-text="s"></span>
+                  <button
+                    @click="data.skills.splice(idx,1)"
+                    class="ml-1 text-red-500 hover:text-red-700"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-3 w-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </span>
+              </template>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Languages (comma separated)</label
+            >
+            <input
+              x-model="data.languages"
+              class="styled-input"
+              placeholder="Arabic, English, French"
+            />
+          </div>
+
+          <!-- Certifications -->
+          <h2
+            class="text-xl font-semibold text-gray-800 mt-8 mb-4 pb-2 border-b border-gray-200"
+          >
+            Certifications & Awards
+          </h2>
+          <div>
+            <textarea
+              x-model="data.certifications"
+              rows="3"
+              class="styled-input"
+              placeholder="List certifications / awards"
+            ></textarea>
+          </div>
+        </section>
+
+        <!-- Preview (spans 2 columns) -->
+        <section class="col-span-2">
+          <div
+            id="cvArea"
+            class="cv-page bg-white rounded-xl shadow-lg p-8 max-w-3xl mx-auto"
+          >
+            <!-- Header Section -->
+            <div class="flex items-start justify-between mb-6">
+              <div class="flex-1">
+                <h1
+                  class="text-3xl font-bold text-gray-900 mb-1"
+                  x-text="data.name || 'Your Name'"
+                ></h1>
+                <div
+                  class="text-lg text-blue-600 font-medium mb-3"
+                  x-text="data.title || 'Professional Title'"
+                ></div>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-700">
+                  <div class="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 mr-1 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span x-text="data.email || 'email@example.com'"></span>
+                  </div>
+                  <div class="flex items-center" x-show="data.phone">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 mr-1 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                    <span x-text="data.phone"></span>
+                  </div>
+                  <div class="flex items-center" x-show="data.location">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 mr-1 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <span x-text="data.location"></span>
+                  </div>
+                  <div class="flex items-center" x-show="data.website">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 mr-1 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9"
+                      />
+                    </svg>
+                    <span x-text="data.website"></span>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="w-28 h-28 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center photo-placeholder border-4 border-white shadow-md ml-4"
+              >
+                <template x-if="data.photo">
+                  <img
+                    :src="data.photo"
+                    alt="photo"
+                    class="object-cover w-full h-full"
+                  />
+                </template>
+                <template x-if="!data.photo">
+                  <div class="text-xs text-gray-600 text-center p-2">
+                    Professional<br />Photo
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Summary -->
+            <section class="cv-section">
+              <h3 class="cv-section-title">Professional Summary</h3>
+              <p
+                class="text-gray-700 leading-relaxed"
+                x-text="data.summary || 'Experienced professional with a proven track record of success...'"
+              ></p>
+            </section>
+
+            <!-- Experience -->
+            <section class="cv-section">
+              <h3 class="cv-section-title">Work Experience</h3>
+              <template x-for="(exp, i) in data.experience" :key="i">
+                <div class="experience-card">
+                  <div class="flex justify-between items-start mb-1">
+                    <div>
+                      <h4
+                        class="font-semibold text-lg text-gray-900"
+                        x-text="exp.role || 'Job Title'"
+                      ></h4>
+                      <p
+                        class="text-blue-600 font-medium"
+                        x-text="exp.company || 'Company Name'"
+                      ></p>
+                    </div>
+                    <span
+                      class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded"
+                      x-text="exp.period || 'Dates'"
+                    ></span>
+                  </div>
+                  <div
+                    class="mt-2 text-gray-700 whitespace-pre-line text-sm leading-relaxed"
+                    x-text="exp.description || 'Description of responsibilities and achievements...'"
+                  ></div>
+                </div>
+              </template>
+            </section>
+
+            <!-- Education -->
+            <section class="cv-section">
+              <h3 class="cv-section-title">Education</h3>
+              <template x-for="(ed, i) in data.education" :key="i">
+                <div class="education-card">
+                  <h4
+                    class="font-semibold text-gray-900"
+                    x-text="ed.degree || 'Degree'"
+                  ></h4>
+                  <p
+                    class="text-gray-700"
+                    x-text="ed.institution || 'Institution Name'"
+                  ></p>
+                  <p
+                    class="text-sm text-gray-500"
+                    x-text="ed.period || 'Graduation Date'"
+                  ></p>
+                </div>
+              </template>
+            </section>
+
+            <!-- Skills & Languages -->
+            <section class="cv-section grid grid-cols-2 gap-6">
+              <div>
+                <h3 class="cv-section-title">Skills</h3>
+                <div class="flex flex-wrap mt-2">
+                  <template x-for="(s, idx) in data.skills" :key="idx">
+                    <span class="skill-tag" x-text="s"></span>
+                  </template>
+                </div>
+              </div>
+              <div>
+                <h3 class="cv-section-title">Languages</h3>
+                <div
+                  class="mt-2 text-gray-700"
+                  x-text="data.languages || 'Language proficiency'"
+                ></div>
+              </div>
+            </section>
+
+            <!-- Certifications -->
+            <section class="cv-section" x-show="data.certifications">
+              <h3 class="cv-section-title">Certifications & Awards</h3>
+              <div
+                class="text-gray-700 whitespace-pre-line"
+                x-text="data.certifications"
+              ></div>
+            </section>
+
+            <footer
+              class="mt-8 pt-4 border-t border-gray-200 text-xs text-gray-500 text-center"
+            >
+              Generated with SkillId - DigitalSkillers
+            </footer>
+          </div>
+
+          <div class="mt-4 text-center no-print">
+            <p class="text-sm text-gray-600">
+              Your CV will be optimized for both human readers and Applicant
+              Tracking Systems (ATS)
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <p class="text-sm text-gray-600 mt-6 text-center no-print">
+        Tip: Use the "Download PDF" button to generate a print-ready PDF. For
+        best ATS results, keep content concise and use standard section
+        headings.
+      </p>
+    </div>
+
+    <script>
+      function cvApp() {
+        return {
+          skillInput: "",
+          data: {
+            name: "Jane Doe",
+            title: "Frontend Developer",
+            email: "jane@example.com",
+            phone: "+213 5x xx xx xx",
+            location: "Algiers, Algeria",
+            website: "",
+            summary:
+              "Practical frontend developer with X years building responsive web apps. Experienced with JavaScript, React, and modern CSS.",
+            photo: null,
+            experience: [
+              {
+                role: "Frontend Developer",
+                company: "Company A",
+                period: "2022 — Present",
+                description:
+                  "• Built responsive UIs\n• Improved performance by 30%\n• Collaborated with designers and backend.",
+              },
+            ],
+            education: [
+              {
+                degree: "MSc Software Engineering",
+                institution: "USTHB",
+                period: "2019 — 2021",
+              },
+            ],
+            skills: ["HTML", "CSS", "JavaScript"],
+            languages: "Arabic, French, English",
+            certifications: "Certified XYZ",
+          },
+
+          onPhoto(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              this.data.photo = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+          },
+
+          addSkill() {
+            const v = this.skillInput && this.skillInput.trim();
+            if (!v) return;
+            this.data.skills.push(v);
+            this.skillInput = "";
+          },
+
+          addExperience(i) {
+            this.data.experience.splice(i, 0, {
+              role: "",
+              company: "",
+              period: "",
+              description: "",
+            });
+          },
+          duplicateExperience(i) {
+            this.data.experience.splice(
+              i + 1,
+              0,
+              JSON.parse(JSON.stringify(this.data.experience[i]))
+            );
+          },
+          removeExperience(i) {
+            if (this.data.experience.length > 1)
+              this.data.experience.splice(i, 1);
+            else {
+              this.data.experience[i] = {
+                role: "",
+                company: "",
+                period: "",
+                description: "",
+              };
+            }
+          },
+
+          addEducation(i) {
+            this.data.education.splice(i, 0, {
+              degree: "",
+              institution: "",
+              period: "",
+            });
+          },
+          removeEducation(i) {
+            if (this.data.education.length > 1)
+              this.data.education.splice(i, 1);
+            else {
+              this.data.education[i] = {
+                degree: "",
+                institution: "",
+                period: "",
+              };
+            }
+          },
+
+          reset() {
+            if (confirm("Reset all fields to defaults?")) location.reload();
+          },
+
+          downloadPDF() {
+            // Adjust element for printing
+            const element = document.getElementById("cvArea");
+            // Options tuned for A4 portrait
+            const opt = {
+              margin: 0.4,
+              filename:
+                (this.data.name || "cv").replace(/\s+/g, "_").toLowerCase() +
+                ".pdf",
+              image: { type: "jpeg", quality: 0.98 },
+              html2canvas: { scale: 2, logging: false, useCORS: true },
+              jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+            };
+            // inline style tweaks to make PDF crisp
+            element.style.width = "8.27in"; // A4 width
+            html2pdf()
+              .set(opt)
+              .from(element)
+              .save()
+              .then(() => {
+                element.style.width = "";
+              });
+          },
+        };
+      }
+    </script>
+  </body>
+</html>
